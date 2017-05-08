@@ -18,7 +18,6 @@ cat <<'WelCome-Message'
      Environment:
        Variable          DefaultValue                  Description
      -------------------+-----------------------------+---------------------------
-       * SSL_CA_DIR      ""                            If provided, we will not create ca bu use existing. Should named: ca.pem, ca-key.pem
        * SSL_EXPIRY      "87600h"                      Expiry of signed.
        * SSL_CA_CN       "Kubernetes Netease CA"       CA common name.
        * SSL_COUNTRY     "CN"
@@ -30,6 +29,10 @@ cat <<'WelCome-Message'
                                                        APIServer running hosts, please seperate with space
      Output Directory:
        * /opt/cfssl/output
+     
+     REMARK:
+       * if ca.pem and ca-key.pem exist in output directory, this CA will be used.
+         Otherwise new CA will be generated.
     
      Type `?` to get help
 WelCome-Message
@@ -72,23 +75,19 @@ cat >${CACONFIG}<<EOF
 }
 EOF
 
-CA_CERT=""
-if [ x"${SSL_CA_DIR}" != "x" ]; then
-    CA_CERT=${SSL_CA_DIR}/ca.pem
-    CA_KEY=${SSL_CA_DIR}/ca-key.pem
-    if [ ! -f ${CA_CERT} -o ! -f ${CA_KEY} ]; then
-        echo "Set SSL_CA_DIR=${SSL_CA_DIR} but missed ${CA_CERT} or ${CA_KEY}"
-        echo "Abort"
-        exit 1
-    fi
-fi
+CA_CERT=/opt/cfssl/output/ca.pem
+CA_KEY=/opt/cfssl/output/ca-key.pem
 
-if [ x${CA_CERT} == "x" ]; then
-    CA_CERT=/opt/cfssl/output/ca.pem
-    CA_KEY=/opt/cfssl/output/ca-key.pem
-    echo "Generating CA cert..."
+if [ -f $CA_CERT -a -f $CA_KEY ]; then
+    echo "CA found, all cert will gened by the CA."
+elif [ ! -f $CA_CERT -a ! -f $CA_KEY ]; then
+    echo "No CA found, generating CA cert..."
     sed "s/SSL_CN/${SSL_CA_CN}/g; s/SSL_ORGNIZATION/${SSL_ORGNIZATION}/g; s/SSL_ORG_UNIT/${SSL_ORG_UNIT}/g; /hosts/d" $TEMPLATE | \
         cfssl gencert -initca - | cfssljson -bare /opt/cfssl/output/ca
+else
+    echo "Only found part of ca key-pair, please checking your output dir"
+    echo "Aborted."
+    exit 1
 fi
 
 function _gencert() {
