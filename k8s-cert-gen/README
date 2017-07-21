@@ -1,0 +1,51 @@
+
+     ______  __       ____                                  
+    /\__  _\/\ \     /\  _`\                                
+    \/_/\ \/\ \ \    \ \,\L\_\         __      __    ___    
+       \ \ \ \ \ \  __\/_\__ \       /'_ `\  /'__`\/' _ `\  
+        \ \ \ \ \ \L\ \ /\ \L\ \    /\ \L\ \/\  __//\ \/\ \ 
+         \ \_\ \ \____/ \ `\____\   \ \____ \ \____\ \_\ \_\  
+          \/_/  \/___/   \/_____/    \/___L\ \/____/\/_/\/_/   
+                                       /\____/              
+            with https://cfssl.org     \_/__/               
+     This image will help you:
+       * generate and sign your ca and cert
+     Usage:
+       * setup your envrionment, and remember mount /opt/cfssl/output dir to your target path
+     Environment:
+       Variable          DefaultValue                  Description
+     -------------------+-----------------------------+---------------------------
+       * SSL_CA_DIR      ""                            If provided, we will not create ca bu use existing. Should named: ca.pem, ca-key.pem
+       * SSL_EXPIRY      "87600h"                      Expiry of signed.
+       * SSL_CA_CN       "Kubernetes Netease CA"       CA common name.
+       * SSL_COUNTRY     "CN"
+       * SSL_LOCATION    "HangZhou"
+       * SSL_ORGNIZATION "NetEase"
+       * SSL_ORG_UNIT    "Kubernetes"
+       * SSL_STATE       "ZheJiang"
+       * K8S_APISERVER   "127.0.0.1 10.0.0.1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local"
+                                                       APIServer running hosts, please seperate with space
+     Output Directory:
+       * /opt/cfssl/output
+    
+     Type `?` to get help
+
+
+
+    Availabe Commands:
+    
+    gen_all
+        Generate all server and client cert and key.
+    gen_apiserver
+        Generate apiserver server cert and key.
+    gen_kubelet [<node-name>]
+        Generate kubelet client cert and key, if node-name provided, the cn is system:node:<node-name>.
+    gen_admin
+        Generate kubectl client cert and key.
+    gen_proxy
+        Generate kube-proxy client cert and key.
+    gen_controller_manager
+        Generate kube-controller-manager client cert and key.
+    gen_scheduler
+        Generate kube-scheduler client cert and key.
+    
